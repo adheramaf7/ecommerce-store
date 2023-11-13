@@ -2,11 +2,13 @@
 
 import { Product } from '@/types';
 import Image from 'next/image';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import IconButton from './icon-button';
 import { Expand, ShoppingCart } from 'lucide-react';
 import Currency from './currency';
 import { useRouter } from 'next/navigation';
+import usePreviewModal from '@/hooks/use-preview-modal';
+import useCart from '@/hooks/use-cart';
 
 interface ProductCardProps {
    product: Product;
@@ -14,10 +16,26 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
    const router = useRouter();
+   const previewModal = usePreviewModal();
+   const cart = useCart();
    const handleClick = () => router.push(`/products/${product?.id}`);
 
+   const onPreview: MouseEventHandler<HTMLButtonElement> = (event) => {
+      event.stopPropagation();
+
+      previewModal.onOpen(product);
+   };
+
+   const onAddToCart: MouseEventHandler<HTMLButtonElement> = (event) => {
+      event.stopPropagation();
+
+      cart.addItem(product);
+   };
+
    return (
-      <div className="bg-white group cursor-pointer rounded-xl border p-3 space-y-4">
+      <div
+         onClick={handleClick}
+         className="bg-white group cursor-pointer rounded-xl border p-3 space-y-4">
          <div className="aspect-square rounded-xl bg-gray-100 relative">
             <Image
                alt="Image"
@@ -29,11 +47,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                <div className="flex gap-x-6 justify-center">
                   <IconButton
                      icon={<Expand size={20} className="text-gray-600" />}
-                     onClick={handleClick}
+                     onClick={onPreview}
                   />
                   <IconButton
                      icon={<ShoppingCart size={20} className="text-gray-600" />}
-                     onClick={() => {}}
+                     onClick={onAddToCart}
                   />
                </div>
             </div>
